@@ -40,7 +40,7 @@ let agenda = [
 
 // Constants
 const PORT = process.env.PORT ?? 3000;
-const HOST = '0.0.0.0';
+
 
 app.get('/', (request, response) => {
 	response.send('<h1>Hello World!</h1>')
@@ -92,6 +92,6 @@ app.get('/', (request, response) => {
 
 
   
-  app.listen(PORT,HOST, () => {
-	console.log(`Server running on port:${HOST}: ${PORT}`)
+  app.listen(PORT, () => {
+	console.log(`Server running on port:${PORT}`)
   })
