@@ -5,17 +5,91 @@
 
 'use strict';
 
-const express = require('express');
+
+const express = require("express");
+const morgan =  require('morgan')
+const app = express()
+app.use(express.json())
+app.use(morgan('tiny'))
+
+let agenda = [
+	{
+		id: 1,
+		name: "Arto Hellas",
+		number: "040-123456"
+	},
+	{
+		id: 2,
+		name: "Ada Lovelace",
+		number: "39-44-5223523"
+	},
+	{
+		id: 3,
+		name: "Dam Abramov",
+		number: "12-43-234345"
+	},
+	{
+		id: 4,
+		name: "Mary Poppendick",
+		number: "39-23-65465497"
+	}
+
+]
 
 // Constants
 const PORT = 3000;
 const HOST = '0.0.0.0';
 
-// App
-const app = express();
-app.get('/', (req, res) => {
-	res.send('Hello remote world!\n');
-});
+app.get('/', (request, response) => {
+	response.send('<h1>Hello World!</h1>')
+  })
+  
+  app.get('/api/persons', (request, response) => {
+	response.json(agenda)
+  })
+  
+  app.get('/info', (req, res) => {
+	
+	res.end(`<p> Phonebook has info for ${agenda.length} people</p><p>${new Date()}</p>`)
+	
+  })
 
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);
+  app.get('/api/persons/:id',(req, res)=>{
+	const id = Number(req.params.id)
+	const person = agenda.find(p => p.id === id)
+	if(person){
+		res.json(person)
+	}else{
+		res.status(404).end()
+	}
+  })
+
+  app.delete('/api/persons/:id', (req, res) => {
+	const id = Number(req.params.id)
+	agenda = agenda.filter( p => p.id !== id)
+	
+	res.status(204).end()
+  })
+
+  app.post('/api/persons', (req, res) =>{
+		if( !(req.body.name && req.body.number)){
+			const faltante = req.body.name ? 'number' : 'name'
+			return res.status(400).json({error: `falta ${faltante}`})
+		}else if( agenda.find( p => p.name === req.body.name)){
+			return res.status(400).json({error: `el nombre ya esta en la agenda`})
+		}
+
+		const person = {
+			id : Math.floor(Math.random() * 1000),
+			...req.body
+		}
+		agenda = agenda.concat(person)
+
+		res.json(agenda)
+  })
+
+
+  
+  app.listen(PORT,HOST, () => {
+	console.log(`Server running on port:${HOST}: ${PORT}`)
+  })
